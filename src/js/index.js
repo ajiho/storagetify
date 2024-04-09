@@ -1,6 +1,6 @@
 import TagSet from './TagSet'
 
-class QuickCache {
+class Storagetify {
   constructor(options = {}) {
     this.type = options.type || 'local' //默认驱动是 localStorage
     this.expire = options.expire || 0
@@ -115,4 +115,4 @@ class QuickCache {
   }
 }
 
-export default QuickCache
+export default Storagetify

@@ -6,11 +6,11 @@
   "module": "dist/storagetify.esm.js",
   "browser": "dist/storagetify.min.js",
   "scripts": {
-    "format": "prettier --config prettier.config.mjs  src/scss/**/*.{js,scss} --check --cache --cache-location .cache/.prettiercache",
-    "format:fix": "prettier --config prettier.config.mjs src/scss/**/*.{js,scss} --write",
+    "format": "prettier --config prettier.config.mjs  src/js/**/*.{js,scss} --check --cache --cache-location .cache/.prettiercache",
+    "format:fix": "prettier --config prettier.config.mjs src/js/**/*.{js,scss} --write",
     "lint": "cross-env ESLINT_USE_FLAT_CONFIG=true eslint --config eslint.config.mjs src/js/**/*.js --cache --cache-location .cache/.eslintcache --report-unused-disable-directives",
     "lint:fix": "cross-env ESLINT_USE_FLAT_CONFIG=true eslint --config eslint.config.mjs src/js/**/*.js  --fix",
-    "format-lint": "run-s format lint",
+    "lint-format": "run-s format lint",
     "fix": "run-s lint:fix format:fix",
     "base": "rollup --config rollup.config.mjs",
     "min": "cross-env NODE_ENV=production rollup --config rollup.config.mjs",
@@ -19,7 +19,7 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "dist": "run-p base min docs:build"
+    "dist": "run-p base min"
   },
   "repository": {
     "type": "git",

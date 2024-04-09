@@ -37,7 +37,7 @@ if (process.env.NODE_ENV === 'production') {
 const config = [];
 
 
-let file = 'dist/domtify.js'
+let file = 'dist/storagetify.js'
 if (process.env.NODE_ENV === 'production') {
     file = file.replace(/\.js$/, '.min.js')
 }
@@ -54,8 +54,8 @@ config.push({
     input,
     output: {
         ...base,
-        format: 'iife',
-        name: 'd',
+        format: 'umd',
+        name: 'Storagetify',
         file
     },
     plugins
