@@ -1,6 +1,6 @@
 {
   "name": "storagetify",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Make the APIs of LocalStorage and SessionStorage easier",
   "main": "dist/storagetify.js",
   "module": "dist/storagetify.esm.js",
