@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>storagetify-demo</title>
+    <link rel="stylesheet" href="./bootstrap.min.css">
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="row">
+
+            <div class="col">
+                <h2>localStorage</h2>
+                <p>在这里您可以随时观察到存储效果</p>
+                <div class="table-responsive">
+                    <table id="localStorageTable" class="table">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Value</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+                <button class="btn btn-success" onclick="set()">set</button>
+                <button class="btn btn-success" onclick="set2()">set值为数字</button>
+                <button class="btn btn-success" onclick="set3()">set值为数组</button>
+                <button class="btn btn-success" onclick="get()">get</button>
+                <button class="btn btn-success" onclick="has()">has</button>
+                <button class="btn btn-success" onclick="deletea()">deletea</button>
+                <button class="btn btn-success" onclick="clearx()">clear</button>
+                <button class="btn btn-success" onclick="remember()">remember</button>
+                <button class="btn btn-success" onclick="remember2()">remember支持过期时间</button>
+                <button class="btn btn-success" onclick="remember3()">remember第二个参数支持函数</button>
+                <button class="btn btn-success" onclick="inc()">inc自增步进值为1</button>
+                <button class="btn btn-success" onclick="inc2()">inc自增步进值为自定义</button>
+                <button class="btn btn-success" onclick="dec()">dec自减</button>
+                <button class="btn btn-success" onclick="dec2()">dec自减自定义步进值</button>
+                <button class="btn btn-success" onclick="pull()">pull获取并删除key</button>
+                <button class="btn btn-success" onclick="push()">push如果缓存数据是一个数组,可以通过push方法追加一个数据</button>
+                <button class="btn btn-success" onclick="tag()">支持给缓存数据打标签</button>
+                <button class="btn btn-success" onclick="tag2()">清除tag标签的缓存数据</button>
+                <button class="btn btn-success" onclick="tag3()">缓存标签不会改变缓存的读取操作</button>
+                <button class="btn btn-success" onclick="tag4()">并支持同时指定多个缓存标签操作</button>
+                <button class="btn btn-success" onclick="tag5()">清除多个标签的缓存数据</button>
+                <button class="btn btn-success" onclick="tag6()">可以追加某个缓存标识到标签 </button>
+                <button class="btn btn-success" onclick="tag7()">获取标签的缓存标识列表 </button>
+                <button class="btn btn-success" onclick="store2()">没有指定缓存类型的话,默认是localStorage,可以动态切换到sessionStorage
+                </button>
+                <div id="result"></div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <script src="/dist/storagetify.js"></script>
+    <script>
+
+        const store = new Storagetify({
+            prefix: 'abcd_',
+            expire: 3
+        })
+
+        function set() {
+            store.set('a', [1, 2, 4])
+        }
+
+        function set2() {
+            store.set('a', 1)
+        }
+
+        function set3() {
+            store.set('a', [1, 2, 4])
+        }
+
+
+
+
+        function get() {
+            //    console.log(event.target);
+            console.log(store.get('a', 123));
+        }
+
+        function has() {
+            console.log(store.has('a'));
+        }
+
+        function deletea() {
+            console.log(store.delete('a'));
+        }
+
+        function clearx() {
+            console.log(store.clear());
+        }
+
+
+        //不存在则写入缓存数据后返回 key, value, expire = null
+        function remember() {
+            console.log(store.remember('a', Date.now()));
+        }
+
+        //支持过期时间
+        function remember2() {
+            console.log(store.remember('a', Math.random(), 5));
+        }
+
+
+        function inc() {
+            console.log(store.inc('a'));
+        }
+
+
+        function inc2() {
+            console.log(store.inc('a', 2));
+        }
+
+        //是负数也会继续减少，变成负整数
+        function dec() {
+            console.log(store.dec('a'));
+        }
+
+        function dec2() {
+            console.log(store.dec('a', 3));
+        }
+
+        function pull() {
+            console.log(store.pull('a'));
+        }
+
+
+        //如果缓存数据不存在，则默认存放该数据到一个空数组中
+        function push() {
+            console.log(store.push('a', 4));
+        }
+
+        function tag() {
+            store.tag('tag').set('name1', 'value1')
+            store.tag('tag').set('name2', 'value2')
+        }
+
+
+        function tag2() {
+            store.tag('tag').clear()
+        }
+
+
+        // 缓存标签不会改变缓存的读取操作
+        function tag3() {
+            console.log(store.get('name2'));
+        }
+
+        function tag4() {
+            store.tag(['tag1', 'tag2']).set('name1', 'value1')
+        }
+
+        function tag5() {
+            store.tag(['tag1', 'tag2']).clear()
+        }
+
+        function tag6() {
+            store.tag('tag').append('name3')
+        }
+
+        function tag7() {
+            console.log(store.getTagItems('tag'));
+        }
+
+
+        function store2() {
+            console.log(store.store('session').set('name', 'value', 3600));
+        }
+
+
+
+
+
+
+
+        window.onload = function () {
+            refreshTable();
+        };
+
+
+        //事件
+        store.on('change', () => {
+            refreshTable()
+        })
+
+
+        function refreshTable() {
+            const tableBody = document.querySelector('#localStorageTable tbody');
+            tableBody.innerHTML = '';
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+
+                const row = `
+      <tr>
+        <td>${key}</td>
+        <td>${value}</td>
+        <td><button class="btn btn-primary" onclick="deleteItem('${key}')">Delete</button></td>
+      </tr>
+    `;
+                tableBody.innerHTML += row;
+            }
+        }
+
+        function deleteItem(key) {
+            localStorage.removeItem(key);
+            refreshTable();
+        }
+
+    </script>
+</body>
+
+</html>

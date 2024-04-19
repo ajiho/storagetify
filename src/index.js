@@ -1,29 +1,53 @@
+import mitt from 'mitt'
 import TagSet from './TagSet'
 
+//参数默认值
+const Default = {
+  type: 'local', //默认驱动是 localStorage
+  expire: 0, //单位是秒
+  prefix: '', //key的前缀
+  serialize: JSON.stringify, //序列化
+  deserialize: JSON.parse, //反序列化
+}
+
 class Storagetify {
-  constructor(options = {}) {
-    this.type = options.type || 'local' //默认驱动是 localStorage
-    this.expire = options.expire || 0
-    this.prefix = options.prefix || ''
-    this.serialize = options.serialize || JSON.stringify
-    this.deserialize = options.deserialize || JSON.parse
-    this.storage = window[`${this.type}Storage`]
+  #emitter
+  #storage
+  #config
+
+  constructor(config) {
+    this.#config = {
+      ...Default,
+      ...config,
+    }
+
+    this.#emitter = mitt()
+    this.#storage = window[`${this.#config.type}Storage`]
   }
 
-  getKey(key) {
-    return this.prefix + key
+  on(event, callback) {
+    this.#emitter.on(event, callback)
+  }
+
+  #getKey(key) {
+    return this.#config.prefix + key
   }
 
   set(key, value, expire = null) {
     const cacheValue = {
       value,
       expire:
-        expire || this.expire !== 0
-          ? Date.now() + (expire || this.expire) * 1000
+        expire || this.#config.expire !== 0
+          ? Date.now() + (expire || this.#config.expire) * 1000
           : 0,
     }
     try {
-      this.storage.setItem(this.getKey(key), this.serialize(cacheValue))
+      this.#storage.setItem(
+        this.#getKey(key),
+        this.#config.serialize(cacheValue),
+      )
+      //触发事件
+      this.#emitter.emit('change')
       return true
     } catch (error) {
       return false
@@ -31,13 +55,13 @@ class Storagetify {
   }
 
   has(key) {
-    return this.storage.getItem(this.getKey(key)) !== null
+    return this.#storage.getItem(this.#getKey(key)) !== null
   }
 
   get(key, defaultValue = null) {
-    const cacheValue = this.storage.getItem(this.getKey(key))
+    const cacheValue = this.#storage.getItem(this.#getKey(key))
     if (cacheValue) {
-      const parsedValue = this.deserialize(cacheValue)
+      const parsedValue = this.#config.deserialize(cacheValue)
       if (parsedValue.expire === 0 || parsedValue.expire >= Date.now()) {
         return parsedValue.value
       }
@@ -47,11 +71,13 @@ class Storagetify {
   }
 
   delete(key) {
-    this.storage.removeItem(this.getKey(key))
+    this.#storage.removeItem(this.#getKey(key))
+    this.#emitter.emit('change')
   }
 
   clear() {
-    this.storage.clear()
+    this.#storage.clear()
+    this.#emitter.emit('change')
   }
 
   remember(key, value, expire = null) {
@@ -103,10 +129,10 @@ class Storagetify {
   store(type) {
     return new this.constructor({
       type,
-      expire: this.expire,
-      prefix: this.prefix,
-      serialize: this.serialize,
-      deserialize: this.deserialize,
+      expire: this.#config.expire,
+      prefix: this.#config.prefix,
+      serialize: this.#config.serialize,
+      deserialize: this.#config.deserialize,
     })
   }
 
